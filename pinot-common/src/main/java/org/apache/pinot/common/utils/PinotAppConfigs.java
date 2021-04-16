@@ -121,8 +121,15 @@ public class PinotAppConfigs {
     RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
     List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
 
+    // RuntimeMXBean.getBootClassPath() is removed after JDK 9.
+    String bootClassPath;
+    try {
+      bootClassPath = runtimeMXBean.getBootClassPath();
+    } catch (Exception e) {
+      bootClassPath = null;
+    }
     return new JVMConfig(runtimeMXBean.getInputArguments(), runtimeMXBean.getLibraryPath(),
-        runtimeMXBean.getBootClassPath(), runtimeMXBean.getSystemProperties(), System.getenv(),
+        bootClassPath, runtimeMXBean.getSystemProperties(), System.getenv(),
         garbageCollectorMXBeans.stream().map(MemoryManagerMXBean::getName).collect(Collectors.toList()));
   }
 
