@@ -212,8 +212,16 @@ public class InstancePlanMakerImplV2 implements PlanMaker {
         QueryOptions queryOptions = new QueryOptions(queryContext.getQueryOptions());
         // new Combine operator only when GROUP_BY_MODE explicitly set to SQL
         if (queryOptions.isGroupByModeSQL()) {
+          boolean enableSegmentGroupTrim = _enableSegmentGroupTrim;
+          int minSegmentTrimSize = _minSegmentTrimSize;
+          if (queryOptions.isEnableSegmentTrim() != null) {
+            enableSegmentGroupTrim = queryOptions.isEnableSegmentTrim();
+          }
+          if (queryOptions.getSegmentTrimSize() != null) {
+            minSegmentTrimSize = queryOptions.getSegmentTrimSize();
+          }
           return new AggregationGroupByOrderByPlanNode(indexSegment, queryContext, _maxInitialResultHolderCapacity,
-              _numGroupsLimit, _enableSegmentGroupTrim, _minSegmentTrimSize);
+              _numGroupsLimit, enableSegmentGroupTrim, minSegmentTrimSize);
         }
         return new AggregationGroupByPlanNode(indexSegment, queryContext, _maxInitialResultHolderCapacity,
             _numGroupsLimit);
